@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class GuessCardView extends LinearLayout {
@@ -18,7 +19,9 @@ public class GuessCardView extends LinearLayout {
     private TextView tvTitle;
     private ImageView ivImage;
     private LinearLayout llAnswerContainer;
-    private List<Card> cards;
+    private List<Card> cards = new ArrayList<>();
+    private NoScrollGridView gridView;
+    private BaseAdapter adapter;
 
     public GuessCardView(Context context) {
         this(context, null);
@@ -36,12 +39,11 @@ public class GuessCardView extends LinearLayout {
         tvTitle = findViewById(R.id.tv_title);
         ivImage = findViewById(R.id.iv_image);
         llAnswerContainer = findViewById(R.id.ll_card_container);
-
-        NoScrollGridView gridView = findViewById(R.id.grid_view);
-        gridView.setAdapter(new BaseAdapter() {
+        gridView = findViewById(R.id.grid_view);
+        gridView.setAdapter(adapter = new BaseAdapter() {
             @Override
             public int getCount() {
-                return 24;
+                return cards.size();
             }
 
             @Override
@@ -72,6 +74,10 @@ public class GuessCardView extends LinearLayout {
     }
 
     private void showCard(Card card) {
+        tvTitle.setText("第" + card.getId() + "关");
+
+        String answer = card.getAnswer();
+        String[] splits = answer.split("");
 
     }
 }
