@@ -67,6 +67,8 @@ public class GuessCardView extends LinearLayout {
     public void initData(List<Card> cards) {
         this.cards = cards;
         showCard(cards.get(0));
+
+
     }
 
     private void showCard(Card card) {
