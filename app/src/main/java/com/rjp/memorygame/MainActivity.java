@@ -4,10 +4,19 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+
+import com.alibaba.fastjson.JSONArray;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.List;
 
 public class MainActivity extends Activity {
     private Context mContext;
@@ -24,30 +33,27 @@ public class MainActivity extends Activity {
 
         mContext = this;
 
-        NoScrollGridView gridView = findViewById(R.id.grid_view);
-        gridView.setAdapter(new BaseAdapter() {
-            @Override
-            public int getCount() {
-                return 24;
-            }
+        GuessCardView guessCardView = findViewById(R.id.guess_card_view);
 
-            @Override
-            public Object getItem(int position) {
-                return null;
-            }
+        String fromAssets = getFromAssets("cards.json");
+        if(!TextUtils.isEmpty(fromAssets)){
+            List<Card> cards = JSONArray.parseArray(fromAssets, Card.class);
+            guessCardView.initData(cards);
+        }
+    }
 
-            @Override
-            public long getItemId(int position) {
-                return 0;
-            }
-
-            @Override
-            public View getView(int position, View convertView, ViewGroup parent) {
-                if(convertView == null){
-                    convertView = LayoutInflater.from(mContext).inflate(R.layout.item_grid_view, null);
-                }
-                return convertView;
-            }
-        });
+    public String getFromAssets(String fileName) {
+        try {
+            InputStreamReader inputReader = new InputStreamReader(getResources().getAssets().open(fileName));
+            BufferedReader bufReader = new BufferedReader(inputReader);
+            String line = "";
+            String result = "";
+            while ((line = bufReader.readLine()) != null)
+                result += line;
+            return result;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "";
     }
 }

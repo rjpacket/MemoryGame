@@ -350,7 +350,6 @@ public class AutoReplyService extends AccessibilityService {
     }
 
     private void release() {
-
         if (locked && kl != null) {
             android.util.Log.d("maptrix", "release the lock");
             //得到键盘锁管理器对象
