@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,7 +19,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
 
-public class MainActivity extends Activity {
+public class MainActivity extends FragmentActivity {
     private Context mContext;
 
     public static void trendTo(Context mContext) {
@@ -39,6 +40,8 @@ public class MainActivity extends Activity {
         if(!TextUtils.isEmpty(fromAssets)){
             List<Card> cards = JSONArray.parseArray(fromAssets, Card.class);
             guessCardView.initData(cards);
+            int index = (int) SPUtil.getData(this, "index", 0);
+            guessCardView.showCard(cards.get(index));
         }
     }
 
