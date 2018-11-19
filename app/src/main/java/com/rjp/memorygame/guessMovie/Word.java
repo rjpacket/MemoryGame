@@ -1,4 +1,4 @@
-package com.rjp.memorygame;
+package com.rjp.memorygame.guessMovie;
 
 public class Word {
     private String name;

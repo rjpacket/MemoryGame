@@ -1,4 +1,4 @@
-package com.rjp.memorygame;
+package com.rjp.memorygame.redPacket;
 
 /**
  * author : Gimpo create on 2018/10/26 11:33

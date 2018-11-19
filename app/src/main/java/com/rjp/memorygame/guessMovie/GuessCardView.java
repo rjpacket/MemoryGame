@@ -1,4 +1,4 @@
-package com.rjp.memorygame;
+package com.rjp.memorygame.guessMovie;
 
 import android.content.Context;
 import android.content.Intent;
@@ -13,6 +13,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.rjp.memorygame.R;
+import com.rjp.memorygame.SPUtil;
 
 import java.util.ArrayList;
 import java.util.List;

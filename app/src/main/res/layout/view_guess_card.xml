@@ -38,7 +38,7 @@
 
     </LinearLayout>
 
-    <com.rjp.memorygame.NoScrollGridView
+    <com.rjp.memorygame.guessMovie.NoScrollGridView
         android:id="@+id/grid_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -48,5 +48,5 @@
         android:layout_margin="10dp"
         >
 
-    </com.rjp.memorygame.NoScrollGridView>
+    </com.rjp.memorygame.guessMovie.NoScrollGridView>
 </LinearLayout>

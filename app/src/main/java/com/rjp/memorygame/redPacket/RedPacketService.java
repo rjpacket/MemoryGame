@@ -1,4 +1,4 @@
-package com.rjp.memorygame;
+package com.rjp.memorygame.redPacket;
 
 import android.accessibilityservice.AccessibilityService;
 import android.annotation.SuppressLint;
@@ -11,13 +11,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.os.PowerManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
+
+import com.rjp.memorygame.App;
+import com.rjp.memorygame.SPUtil;
 
 import java.io.IOException;
 import java.util.List;
@@ -26,30 +28,38 @@ import java.util.regex.Pattern;
 
 public class RedPacketService extends AccessibilityService {
 
-    public static final String VIDEO_LINKS = "第52期精彩视频如下\n\n" +
-            "http://p3i8l7u14.bkt.clouddn.com/1540621913733.mp4\n\n" +
-            "http://p3i8l7u14.bkt.clouddn.com/1540621918762.mp4\n\n" +
-            "http://p3i8l7u14.bkt.clouddn.com/1540621907251.mp4\n\n" +
-            "http://p3i8l7u14.bkt.clouddn.com/1540621924609.mp4\n\n" +
-            "http://p3i8l7u14.bkt.clouddn.com/1540621931353.mp4\n\n" +
-            "http://p3i8l7u14.bkt.clouddn.com/1540621937960.mp4";
-
-    public static final String BOTTLE_MESSAGE = "小哥哥，5元红包自动领取";
-
     public static final int RED_PACKET_PRICE = 5;
 
-    public static final int OPEN_BOTTLE_BEACH = 5678;
-
     boolean hasRedPacket = false;
-    private String name;
-    private String scontent;
-    private boolean isAutoOpenRedPacket;
-    private double getMoney;
     private String pageClassName;
-    private String userName;
-    private String userContent;
     private boolean canAddFriend = true;
     private KeyguardManager.KeyguardLock kl;
+    private Handler handler = new Handler();
+
+//    @Override
+//    public int onStartCommand(Intent intent, int flags, int startId) {
+//        startForeground(10, getNotification());
+//        return super.onStartCommand(intent, flags, startId);
+//    }
+//
+//    @Override
+//    public void onDestroy() {
+//        super.onDestroy();
+//        stopForeground(true);
+//    }
+//
+//    private Notification getNotification(){
+//        Notification.Builder mBuilder = new Notification.Builder(this);
+//        mBuilder.setShowWhen(false);
+//        mBuilder.setAutoCancel(false);
+//        mBuilder.setSmallIcon(R.mipmap.ic_launcher_round);
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+//            mBuilder.setLargeIcon(((BitmapDrawable)getDrawable(R.mipmap.ic_launcher)).getBitmap());
+//        }
+//        mBuilder.setContentText("this is content");
+//        mBuilder.setContentTitle("this is title");
+//        return mBuilder.build();
+//    }
 
     /**
      * 必须重写的方法，响应各种事件。
@@ -58,6 +68,11 @@ public class RedPacketService extends AccessibilityService {
      */
     @Override
     public void onAccessibilityEvent(final AccessibilityEvent event) {
+        boolean isOpen = (Boolean) SPUtil.getData(App.getInstance().getApplicationContext(), "auto-get-red-packet", false);
+        if(!isOpen){
+            return;
+        }
+
         int eventType = event.getEventType();
         String className = event.getClassName().toString();
         Log.d("rjp------->", "get event = " + eventType);
@@ -69,15 +84,7 @@ public class RedPacketService extends AccessibilityService {
                     for (CharSequence text : texts) {
                         String content = text.toString();
                         if (!TextUtils.isEmpty(content)) {
-                            wakeAndUnlock();
                             openNotifacation(event);
-                            handler.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    openNotifacation(event);
-                                }
-                            }, 1000);
-
                         }
                     }
                 }
@@ -85,14 +92,8 @@ public class RedPacketService extends AccessibilityService {
             case AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED:
                 Log.d("rjp------->", "window内容变化 | className = " + className);
 
-                if (pageClassName.equals("com.tencent.mm.ui.LauncherUI")) {
+                if ("com.tencent.mm.ui.LauncherUI".equals(pageClassName)) {
                     clickRedPacket(getRootInActiveWindow());
-
-                    //如果在LauncherUI页面一分钟没有动静，就去漂流瓶界面
-                    handler.removeMessages(OPEN_BOTTLE_BEACH);
-                    handler.sendEmptyMessageDelayed(OPEN_BOTTLE_BEACH, 60 * 1000);
-
-
                 }
 
                 break;
@@ -104,89 +105,26 @@ public class RedPacketService extends AccessibilityService {
                     if (hasRedPacket) {
                         AccessibilityNodeInfo rootInActiveWindow = getRootInActiveWindow();
                         clickRedPacket(rootInActiveWindow);
-                    }else{
-                        if(!TextUtils.isEmpty(userContent)){
-                            if(getMoney >= RED_PACKET_PRICE) {
-                                pasteMessageInEditText(getRootInActiveWindow(), VIDEO_LINKS);
-                                clickViewByText("发送");
-                            }else{
-                                pasteMessageInEditText(getRootInActiveWindow(), BOTTLE_MESSAGE);
-                                send();
-                            }
-                            back2Home();
-                            //用户使用一次之后，金额清零
-                            getMoney = 0;
-                            userContent = null;
-                            userName = null;
-                        }
                     }
                     hasRedPacket = false;
                 } else if (className.equals("com.tencent.mm.plugin.luckymoney.ui.LuckyMoneyReceiveUI")) {
                     AccessibilityNodeInfo rootInActiveWindow = getRootInActiveWindow();
-                    isAutoOpenRedPacket = openLuckyMoney(rootInActiveWindow);
+                    if(rootInActiveWindow == null){
+                        Log.d("rjp------->", "》开《按钮没有找到");
+                        return;
+                    }
+                    openLuckyMoney(rootInActiveWindow);
+
+//                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+//                        List<AccessibilityWindowInfo> windows = getWindows();
+//                        for (AccessibilityWindowInfo window : windows) {
+//                            openLuckyMoney(window.getRoot());
+//                        }
+//                    }
+
+
                 } else if (className.equals("com.tencent.mm.plugin.luckymoney.ui.LuckyMoneyDetailUI")) {
-                    if (isAutoOpenRedPacket) {
-                        clickLuckyMoneyDetailBack(getRootInActiveWindow());
-                        isAutoOpenRedPacket = false;
-                    }
-                } else if (className.equals("com.tencent.mm.plugin.bottle.ui.BottleBeachUI")) { // 漂流瓶界面
-                    //点击  扔一个
-                    clickAreaById("com.tencent.mm:id/a51");
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            clickAreaById("com.tencent.mm:id/a60");
-                            handler.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    clickViewById("com.tencent.mm:id/a5v");
-                                    handler.postDelayed(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            pasteContentToEditText(getNodeById("com.tencent.mm:id/a5v"), "5元6部小shi频");
-                                            clickViewByText("扔出去");
-                                        }
-                                    }, 500);
-                                }
-                            }, 500);
-                        }
-                    }, 500);
-                } else if(className.equals("com.tencent.mm.ui.chatting.ChattingUI")){
-                    if(canAddFriend) {
-                        canAddFriend = false;
-                        clickViewById("com.tencent.mm:id/j1");
-                        handler.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                clickViewById("com.tencent.mm:id/aw9");
-                                handler.postDelayed(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        clickViewById("com.tencent.mm:id/j0");
-                                        handler.postDelayed(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                clickViewById("com.tencent.mm:id/jb");
-                                                handler.postDelayed(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        clickViewById("com.tencent.mm:id/j5");
-                                                        handler.postDelayed(new Runnable() {
-                                                            @Override
-                                                            public void run() {
-                                                                clickViewById("com.tencent.mm:id/jb");
-                                                                canAddFriend = true;
-                                                            }
-                                                        }, 500);
-                                                    }
-                                                }, 500);
-                                            }
-                                        }, 500);
-                                    }
-                                }, 500);
-                            }
-                        }, 500);
-                    }
+
                 }
                 break;
         }
@@ -319,7 +257,6 @@ public class RedPacketService extends AccessibilityService {
         if (nodeInfos != null && nodeInfos.size() > 0) {
             AccessibilityNodeInfo nodeInfo = nodeInfos.get(0);
             CharSequence text = nodeInfo.getText();
-            getMoney = Double.parseDouble(text.toString());
         }
         List<AccessibilityNodeInfo> nodes = rootInActiveWindow.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/jb");
         if (nodes != null && nodes.size() > 0) {
@@ -332,11 +269,15 @@ public class RedPacketService extends AccessibilityService {
      * 打开红包
      */
     private boolean openLuckyMoney(AccessibilityNodeInfo rootNode) {
-        List<AccessibilityNodeInfo> nodes = rootNode.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/cnu");
-        if (nodes != null && nodes.size() > 0) {
-            AccessibilityNodeInfo nodeInfo = nodes.get(0);
-            nodeInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
-            return true;
+        try {
+            List<AccessibilityNodeInfo> nodes = rootNode.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/cnu");
+            if (nodes != null && nodes.size() > 0) {
+                AccessibilityNodeInfo nodeInfo = nodes.get(0);
+                nodeInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                return true;
+            }
+        }catch (Exception e){
+
         }
         return false;
     }
@@ -384,32 +325,11 @@ public class RedPacketService extends AccessibilityService {
             Pattern compile = Pattern.compile("\\[微信红包\\].*");
             Matcher matcher = compile.matcher(content);
 
-            Pattern compile1 = Pattern.compile(".*瓶子.*");
-            Matcher matcher1 = compile1.matcher(content);
-
             if (matcher.find()) {
                 Log.d("rjp------->", "有一个红包通知过来了");
                 hasRedPacket = true;
                 PendingIntent pendingIntent = notification.contentIntent;
                 try {
-                    pendingIntent.send();
-                } catch (PendingIntent.CanceledException e) {
-                    e.printStackTrace();
-                }
-            } else if(matcher1.find()){
-                try {
-                    PendingIntent pendingIntent = notification.contentIntent;
-                    pendingIntent.send();
-                } catch (PendingIntent.CanceledException e) {
-                    e.printStackTrace();
-                }
-            }else {
-                //打开一条用户信息
-                try {
-                    String[] split = content.split(":");
-                    userName = split[0];
-                    userContent = split[1];
-                    PendingIntent pendingIntent = notification.contentIntent;
                     pendingIntent.send();
                 } catch (PendingIntent.CanceledException e) {
                     e.printStackTrace();
@@ -422,24 +342,6 @@ public class RedPacketService extends AccessibilityService {
     public void onInterrupt() {
 
     }
-
-    @SuppressLint("HandlerLeak")
-    private Handler handler = new Handler(){
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what){
-                case OPEN_BOTTLE_BEACH:
-                    clickViewByText("发现");
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            clickViewByText("漂流瓶");
-                        }
-                    }, 500);
-                    break;
-            }
-        }
-    };
 
     /**
      * 通过文字找到点击事件
@@ -500,11 +402,5 @@ public class RedPacketService extends AccessibilityService {
             return nodeInfos.get(0);
         }
         return null;
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        handler.removeCallbacksAndMessages(null);
     }
 }

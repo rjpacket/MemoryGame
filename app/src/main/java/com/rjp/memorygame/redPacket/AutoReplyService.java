@@ -1,4 +1,4 @@
-package com.rjp.memorygame;
+package com.rjp.memorygame.redPacket;
 
 import android.accessibilityservice.AccessibilityService;
 import android.annotation.SuppressLint;

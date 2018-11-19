@@ -1,21 +1,16 @@
-package com.rjp.memorygame;
+package com.rjp.memorygame.guessMovie;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 
 import com.alibaba.fastjson.JSONArray;
+import com.rjp.memorygame.R;
+import com.rjp.memorygame.SPUtil;
 
 import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
 
