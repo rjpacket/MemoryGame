@@ -10,6 +10,7 @@ import android.graphics.RectF;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
@@ -56,9 +57,9 @@ public class FruitDisappearView extends SurfaceView implements SurfaceHolder.Cal
 
         mDrawThread = new Thread(this);
 
-        array = new SquareCell[cols][rows];
-        for (int i = 0; i < cols; i++) {
-            for (int j = 0; j < rows; j++) {
+        array = new SquareCell[rows][cols];
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
                 array[i][j] = new SquareCell();
             }
         }
@@ -72,17 +73,10 @@ public class FruitDisappearView extends SurfaceView implements SurfaceHolder.Cal
 
         paint = new Paint();
 
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                while (canDisappear()){
-                    canDisappear();
-                }
-            }
-        }, 1000);
+        while (checkInit()){
+            checkInit();
+        }
     }
-
-    private Handler handler = new Handler(Looper.getMainLooper());
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
@@ -131,10 +125,10 @@ public class FruitDisappearView extends SurfaceView implements SurfaceHolder.Cal
     private void mainDraw(Canvas canvas) {
         canvas.drawColor(Color.parseColor("#FFDAE6"));
 
-        for (int i = 0; i < cols; i++) {
-            for (int j = 0; j < rows; j++) {
-                int left = (i % cols) * (cellWith + space);
-                int top = (j % rows) * (cellHeight + space);
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                int left = (j % cols) * (cellWith + space);
+                int top = (i % rows) * (cellHeight + space);
                 Bitmap bitmapByIJ = getBitmapByIJ(array[i][j]);
                 if (bitmapByIJ != null) {
                     canvas.drawBitmap(bitmapByIJ, null, new RectF(left, top, left + cellWith, top + cellHeight), paint);
@@ -164,10 +158,10 @@ public class FruitDisappearView extends SurfaceView implements SurfaceHolder.Cal
         return null;
     }
 
-    private boolean canDisappear() {
+    private boolean checkInit() {
         //检查行
         for (int i = rows - 1; i >= 0; i--) {
-            for (int j = 0; j < cols - 3; j++) {
+            for (int j = 0; j < cols - 2; j++) {
                 if (array[i][j].getType() == array[i][j + 1].getType() && array[i][j + 1].getType() == array[i][j + 2].getType()) {
                     array[i][j].setType(-1);
                     array[i][j + 1].setType(-1);
@@ -206,5 +200,18 @@ public class FruitDisappearView extends SurfaceView implements SurfaceHolder.Cal
         }
 
         return false;
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        int action = event.getAction();
+        switch (action){
+            case MotionEvent.ACTION_DOWN:
+
+                break;
+            case MotionEvent.ACTION_UP:
+                break;
+        }
+        return super.onTouchEvent(event);
     }
 }
