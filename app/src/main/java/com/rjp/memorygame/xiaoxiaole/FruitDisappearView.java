@@ -6,9 +6,8 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.graphics.RectF;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -40,6 +39,8 @@ public class FruitDisappearView extends SurfaceView implements SurfaceHolder.Cal
     private Paint paint;
     private int space;
     private SquareCell[][] array;
+    private Point startPoint;
+    private Point endPoint;
 
     public FruitDisappearView(Context context) {
         this(context, null);
@@ -57,13 +58,6 @@ public class FruitDisappearView extends SurfaceView implements SurfaceHolder.Cal
 
         mDrawThread = new Thread(this);
 
-        array = new SquareCell[rows][cols];
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
-                array[i][j] = new SquareCell();
-            }
-        }
-
         bitmap1 = BitmapFactory.decodeResource(getResources(), R.drawable.bg_open_one);
         bitmap2 = BitmapFactory.decodeResource(getResources(), R.drawable.bg_open_two);
         bitmap3 = BitmapFactory.decodeResource(getResources(), R.drawable.bg_open_three);
@@ -72,10 +66,6 @@ public class FruitDisappearView extends SurfaceView implements SurfaceHolder.Cal
         bitmap6 = BitmapFactory.decodeResource(getResources(), R.drawable.bg_open_six);
 
         paint = new Paint();
-
-        while (checkInit()){
-            checkInit();
-        }
     }
 
     @Override
@@ -105,7 +95,7 @@ public class FruitDisappearView extends SurfaceView implements SurfaceHolder.Cal
 
             try {
                 Thread.sleep(60 - (end - start));
-            } catch (InterruptedException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -120,6 +110,18 @@ public class FruitDisappearView extends SurfaceView implements SurfaceHolder.Cal
         cellWith = cellHeight = (width - space * (cols - 1)) / cols;
         int height = cellHeight * rows + space * (rows - 1);
         setMeasuredDimension(width, height);
+
+        array = new SquareCell[rows][cols];
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                int left = j  * (cellWith + space);
+                int top = i * (cellHeight + space);
+                array[i][j] = new SquareCell(left, top);
+            }
+        }
+        while (checkInit()) {
+
+        }
     }
 
     private void mainDraw(Canvas canvas) {
@@ -127,11 +129,9 @@ public class FruitDisappearView extends SurfaceView implements SurfaceHolder.Cal
 
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
-                int left = (j % cols) * (cellWith + space);
-                int top = (i % rows) * (cellHeight + space);
                 Bitmap bitmapByIJ = getBitmapByIJ(array[i][j]);
                 if (bitmapByIJ != null) {
-                    canvas.drawBitmap(bitmapByIJ, null, new RectF(left, top, left + cellWith, top + cellHeight), paint);
+                    canvas.drawBitmap(bitmapByIJ, null, new RectF(array[i][j].getLeft(), array[i][j].getTop(), array[i][j].getLeft() + cellWith, array[i][j].getTop() + cellHeight), paint);
                 }
             }
         }
@@ -168,36 +168,42 @@ public class FruitDisappearView extends SurfaceView implements SurfaceHolder.Cal
                     array[i][j + 2].setType(-1);
 
                     for (int k = i - 1; k >= 0; k--) {
+                        array[k][j].animTo(j * (cellWith + space), (k + 1) * (cellHeight + space));
                         array[k + 1][j] = array[k][j];
+                        array[k][j + 1].animTo((j + 1) * (cellWith + space), (k + 1) * (cellHeight + space));
                         array[k + 1][j + 1] = array[k][j + 1];
+                        array[k][j + 2].animTo((j + 2) * (cellWith + space), (k + 1) * (cellHeight + space));
                         array[k + 1][j + 2] = array[k][j + 2];
                     }
-                    array[0][j] = new SquareCell();
-                    array[0][j + 1] = new SquareCell();
-                    array[0][j + 2] = new SquareCell();
+                    array[0][j] = new SquareCell(j * (cellWith + space), -(cellHeight + space));
+                    array[0][j].animTo(j * (cellWith + space), 0);
+                    array[0][j + 1] = new SquareCell((j + 1) * (cellWith + space), -(cellHeight + space));
+                    array[0][j + 1].animTo((j + 1) * (cellWith + space), 0);
+                    array[0][j + 2] = new SquareCell((j + 2) * (cellWith + space), -(cellHeight + space));
+                    array[0][j + 2].animTo((j + 2) * (cellWith + space), 0);
                     return true;
                 }
             }
         }
         //检查列
-        for (int i = 0; i < cols - 1; i++) {
-            for (int j = rows - 1; j >= 2; j--) {
-                if (array[j][i].getType() == array[j - 1][i].getType() && array[j - 1][i].getType() == array[j - 2][i].getType()) {
-                    array[j][i].setType(-1);
-                    array[j - 1][i].setType(-1);
-                    array[j - 2][i].setType(-1);
-
-                    for (int k = j; k >= 3; k--) {
-                        array[k][i] = array[k - 3][i];
-                    }
-
-                    array[2][i] = new SquareCell();
-                    array[1][i] = new SquareCell();
-                    array[0][i] = new SquareCell();
-                    return true;
-                }
-            }
-        }
+//        for (int i = 0; i < cols - 1; i++) {
+//            for (int j = rows - 1; j >= 2; j--) {
+//                if (array[j][i].getType() == array[j - 1][i].getType() && array[j - 1][i].getType() == array[j - 2][i].getType()) {
+//                    array[j][i].setType(-1);
+//                    array[j - 1][i].setType(-1);
+//                    array[j - 2][i].setType(-1);
+//
+//                    for (int k = j; k >= 3; k--) {
+//                        array[k][i] = array[k - 3][i];
+//                    }
+//
+//                    array[2][i] = new SquareCell(i * (cellWith + space), 2 * (cellHeight + space));
+//                    array[1][i] = new SquareCell(i * (cellWith + space), cellHeight + space);
+//                    array[0][i] = new SquareCell(i * (cellWith + space), 0);
+//                    return true;
+//                }
+//            }
+//        }
 
         return false;
     }
@@ -205,13 +211,55 @@ public class FruitDisappearView extends SurfaceView implements SurfaceHolder.Cal
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         int action = event.getAction();
-        switch (action){
+        float x = event.getX();
+        float y = event.getY();
+        switch (action) {
             case MotionEvent.ACTION_DOWN:
-
+                int startX = (int) x / (cellWith + space);
+                int startY = (int) y / (cellHeight + space);
+                int startLeft = startX * (cellWith + space);
+                int startTop = startY * (cellHeight + space);
+                RectF startRect = new RectF(startLeft, startTop, startLeft + cellWith, startTop + cellHeight);
+                if (startRect.contains(x, y)) {
+                    startPoint = new Point(startY, startX);
+                }
                 break;
             case MotionEvent.ACTION_UP:
+                int endX = (int) x / (cellWith + space);
+                int endY = (int) y / (cellHeight + space);
+                int endLeft = endX * (cellWith + space);
+                int endTop = endY * (cellHeight + space);
+                RectF endRect = new RectF(endLeft, endTop, endLeft + cellWith, endTop + cellHeight);
+                if (endRect.contains(x, y)) {
+                    endPoint = new Point(endY, endX);
+                }
+
+                if (Math.abs(endPoint.x - startPoint.x) + Math.abs(endPoint.y - startPoint.y) == 1) {
+                    //说明可以交换
+                    SquareCell temp = array[startPoint.x][startPoint.y];
+                    array[startPoint.x][startPoint.y] = array[endPoint.x][endPoint.y];
+                    array[endPoint.x][endPoint.y] = temp;
+
+                    while (checkInit()) {
+                        checkInit();
+                    }
+//                    if(canDisappear()){
+//
+//                    }else{
+//                        //没有找到，交换回来
+//                        temp = array[startPoint.x][startPoint.y];
+//                        array[startPoint.x][startPoint.y] = array[endPoint.x][endPoint.y];
+//                        array[endPoint.x][endPoint.y] = temp;
+//                    }
+                }
                 break;
         }
-        return super.onTouchEvent(event);
+        return true;
+    }
+
+
+    private boolean canDisappear() {
+
+        return false;
     }
 }
