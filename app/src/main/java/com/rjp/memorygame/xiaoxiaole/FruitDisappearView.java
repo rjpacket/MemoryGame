@@ -194,6 +194,8 @@ public class FruitDisappearView extends SurfaceView implements SurfaceHolder.Cal
                     array[2][i] = new SquareCell();
                     array[1][i] = new SquareCell();
                     array[0][i] = new SquareCell();
+
+
                     return true;
                 }
             }
