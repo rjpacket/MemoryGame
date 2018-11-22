@@ -6,15 +6,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".xiaoxiaole.XiaoXiaoLeActivity"
+    tools:context=".carGame.CarGameActivity"
     >
-
-    <com.rjp.memorygame.memoryGame.MemoryGameView
-        android:id="@+id/mgame"
+    <com.rjp.memorygame.carGame.RoadPanelView
+        android:id="@+id/car_game"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="5dp"
+        android:layout_height="match_parent"
         />
-
 
 </LinearLayout>
