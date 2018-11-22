@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background"
+    android:orientation="vertical"
+    tools:context=".memoryGame.MemoryGameActivity"
+    >
+
+    <ImageView
+        android:layout_width="360dp"
+        android:layout_height="wrap_content"
+        android:src="@drawable/memory"
+        android:layout_marginLeft="20dp"
+        />
+
+    <ImageView
+        android:layout_width="360dp"
+        android:layout_height="wrap_content"
+        android:src="@drawable/game"
+        android:layout_marginLeft="150dp"
+        />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="80dp"
+        android:gravity="center"
+        >
+
+        <ImageView
+            android:id="@+id/tv_guide"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:background="@drawable/vege_pepper_1"
+            android:layout_marginTop="20dp"
+            />
+
+        <ImageView
+            android:id="@+id/tv_start"
+            android:layout_width="160dp"
+            android:layout_height="160dp"
+            android:background="@drawable/vege_onion_1"
+            android:layout_marginLeft="40dp"
+            />
+    </LinearLayout>
+
+</LinearLayout>

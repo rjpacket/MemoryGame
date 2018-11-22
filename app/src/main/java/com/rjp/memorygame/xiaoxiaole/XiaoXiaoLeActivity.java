@@ -27,7 +27,7 @@ public class XiaoXiaoLeActivity extends Activity {
         mContext = this;
 
         MemoryGameView gameView = findViewById(R.id.mgame);
-        gameView.start();
+//        gameView.start();
         gameView.setOnMemoryGameListener(new OnMemoryGameListener() {
             @Override
             public void gameOver() {

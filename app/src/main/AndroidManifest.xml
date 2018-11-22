@@ -5,17 +5,17 @@
     package="com.rjp.memorygame"
     >
 
-    <uses-permission android:name="android.permission.DISABLE_KEYGUARD"/>
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission
         android:name="android.permission.BIND_ACCESSIBILITY_SERVICE"
         tools:ignore="ProtectedPermissions"
         />
-    <uses-permission android:name="android.permission.GET_TASKS"/>
-    <uses-permission android:name="android.permission.REORDER_TASKS"/>
-    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.GET_TASKS" />
+    <uses-permission android:name="android.permission.REORDER_TASKS" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
         android:name=".App"
@@ -26,8 +26,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         >
-        <activity android:name=".guessMovie.MainActivity">
-        </activity>
+        <activity android:name=".guessMovie.MainActivity" />
 
         <!-- <service -->
         <!-- android:name=".AutoReplyService" -->
@@ -53,7 +52,7 @@
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
             >
             <intent-filter>
-                <action android:name="android.accessibilityservice.AccessibilityService"/>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
             </intent-filter>
 
             <meta-data
@@ -62,19 +61,20 @@
                 />
         </service>
 
-        <activity android:name=".guessMovie.LastActivity"/>
-        <activity android:name=".redPacket.RedPacketSettingActivity">
-        </activity>
-        <activity android:name=".xiaoxiaole.XiaoXiaoLeActivity">
-
-        </activity>
-        <activity android:name=".carGame.CarGameActivity">
+        <activity android:name=".guessMovie.LastActivity" />
+        <activity android:name=".redPacket.RedPacketSettingActivity" />
+        <activity android:name=".xiaoxiaole.XiaoXiaoLeActivity" />
+        <activity android:name=".carGame.CarGameActivity" />
+        <activity android:name=".memoryGame.MemoryGameActivity">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
+                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".memoryGame.SelectedModeActivity" />
+        <activity android:name=".memoryGame.PlayGameActivity" />
+        <activity android:name=".memoryGame.ResultActivity"></activity>
     </application>
 
 </manifest>

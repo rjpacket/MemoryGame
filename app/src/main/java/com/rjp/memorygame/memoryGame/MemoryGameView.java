@@ -31,7 +31,6 @@ public class MemoryGameView extends View {
     private Paint linePaint;
     private int cellWith;
     private List<Cell> results;
-    private Bitmap bitmap;
     private boolean isRealRunning;
     private OnMemoryGameListener onMemoryGameListener;
     private long startTime;
@@ -50,9 +49,8 @@ public class MemoryGameView extends View {
 
         linePaint = new Paint();
         linePaint.setAntiAlias(true);
-        linePaint.setColor(Color.BLACK);
-
-        bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.vege_onion);
+        linePaint.setStrokeWidth(4);
+        linePaint.setColor(Color.parseColor("#f4f5f6"));
     }
 
     @Override
@@ -63,12 +61,22 @@ public class MemoryGameView extends View {
         setMeasuredDimension(width, width);
     }
 
-    public void start() {
+    public void start(int count) {
+        this.count = count;
+        invalidate();
         results = new ArrayList<>();
         for (int i = 0; i < count + 3; i++) {
-            int x = (int) (Math.random() * 4);
-            int y = (int) (Math.random() * 4);
-            results.add(new Cell(x, y));
+            int x = (int) (Math.random() * (count - 1));
+            int y = (int) (Math.random() * (count - 1));
+            boolean isExist = false;
+            for (Cell result : results) {
+                if(result.getX() == x && result.getY() == y){
+                    isExist = true;
+                }
+            }
+            if(!isExist) {
+                results.add(new Cell(x, y));
+            }
         }
 
         handler.postDelayed(new Runnable() {
@@ -93,8 +101,6 @@ public class MemoryGameView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        canvas.drawColor(Color.WHITE);
-
         for (int i = 0; i <= count; i++) {
             int height = i * cellWith;
             canvas.drawLine(0, height, width, height, linePaint);
@@ -106,10 +112,26 @@ public class MemoryGameView extends View {
                 if (!result.isHidden()) {
                     int left = result.getX() * cellWith;
                     int top = result.getY() * cellWith;
-                    canvas.drawBitmap(bitmap, null, new RectF(left, top, left + cellWith, top + cellWith), linePaint);
+                    canvas.drawBitmap(getBitmapRandom(result.getType()), null, new RectF(left, top, left + cellWith, top + cellWith), linePaint);
                 }
             }
         }
+    }
+
+    private Bitmap getBitmapRandom(int index) {
+        switch (index) {
+            case 1:
+                return BitmapFactory.decodeResource(getResources(), R.drawable.vege_cabbage);
+            case 2:
+                return BitmapFactory.decodeResource(getResources(), R.drawable.vege_eggplant);
+            case 3:
+                return BitmapFactory.decodeResource(getResources(), R.drawable.vege_pepper);
+            case 4:
+                return BitmapFactory.decodeResource(getResources(), R.drawable.vege_pumpkin);
+            case 5:
+                return BitmapFactory.decodeResource(getResources(), R.drawable.vege_tomato);
+        }
+        return BitmapFactory.decodeResource(getResources(), R.drawable.vege_onion);
     }
 
     @Override
@@ -132,22 +154,22 @@ public class MemoryGameView extends View {
                 int indexY = (int) y / cellWith;
                 boolean isOver = true;
                 for (Cell result : results) {
-                    if(result.getX() == indexX && result.getY() == indexY){
+                    if (result.getX() == indexX && result.getY() == indexY) {
                         result.setHidden(false);
                         invalidate();
                         isOver = false;
                     }
                 }
-                if(isOver && onMemoryGameListener != null){
+                if (isOver && onMemoryGameListener != null) {
                     onMemoryGameListener.gameOver();
-                }else{
+                } else {
                     isOver = true;
                     for (Cell result : results) {
-                        if(result.isHidden()){
+                        if (result.isHidden()) {
                             isOver = false;
                         }
                     }
-                    if(isOver && onMemoryGameListener != null){
+                    if (isOver && onMemoryGameListener != null) {
                         onMemoryGameListener.gameSuccess(getLevelByTime(System.currentTimeMillis() - startTime));
                     }
                 }
@@ -157,22 +179,22 @@ public class MemoryGameView extends View {
     }
 
     private String getLevelByTime(long time) {
-        if(time > 30 * 1000){
-            return "F";
-        }else if(time > 20 * 1000){
-            return "E";
-        }else if(time > 10 * 1000){
-            return "D";
-        }else if(time > 8 * 1000){
-            return "C";
-        }else if(time > 5 * 1000){
-            return "B";
-        }else if(time > 3 * 1000){
-            return "A";
-        }else if(time > 1000){
-            return "S";
+        if (time > 30 * 1000) {
+            return "f";
+        } else if (time > 20 * 1000) {
+            return "e";
+        } else if (time > 10 * 1000) {
+            return "d";
+        } else if (time > 8 * 1000) {
+            return "c";
+        } else if (time > 5 * 1000) {
+            return "b";
+        } else if (time > 3 * 1000) {
+            return "a";
+        } else if (time > 1000) {
+            return "s";
         }
-        return "SSS";
+        return "sss";
     }
 
     public void setOnMemoryGameListener(OnMemoryGameListener onMemoryGameListener) {

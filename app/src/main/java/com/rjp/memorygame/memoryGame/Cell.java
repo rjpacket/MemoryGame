@@ -8,11 +8,14 @@ public class Cell {
     private int x;
     private int y;
 
+    private int type;
+
     private boolean isHidden;
 
     public Cell(int x, int y) {
         this.x = x;
         this.y = y;
+        this.type = (int) (Math.random() * 6);
     }
 
     public int getX() {
@@ -37,5 +40,13 @@ public class Cell {
 
     public void setHidden(boolean hidden) {
         isHidden = hidden;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
     }
 }
