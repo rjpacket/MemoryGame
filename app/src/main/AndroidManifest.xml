@@ -64,9 +64,11 @@
 
         <activity android:name=".guessMovie.LastActivity"/>
         <activity android:name=".redPacket.RedPacketSettingActivity">
-
         </activity>
         <activity android:name=".xiaoxiaole.XiaoXiaoLeActivity">
+
+        </activity>
+        <activity android:name=".carGame.CarGameActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
