@@ -17,7 +17,7 @@ public class MemoryGameActivity extends Activity {
         findViewById(R.id.tv_guide).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                startActivity(new Intent(MemoryGameActivity.this, GuideActivity.class));
             }
         });
 
